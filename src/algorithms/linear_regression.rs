@@ -9,7 +9,8 @@ where
         + std::clone::Clone
         + std::default::Default
         + std::ops::Div<Output = T>
-        + Into<f64>,
+        + Into<f64>
+        + Copy,
 {
     fn new(x_values: Vec<T>, y_values: Vec<T>) -> InputNumbers<T> {
         InputNumbers { x_values, y_values }
@@ -40,16 +41,15 @@ where
         }
     }
 
-    fn find_intercept_and_slope(&self) -> Option<(f64, f64)> {
+    pub fn find_intercept_and_slope(&self) -> Option<(f64, f64)> {
         let value_count = self.x_values.len();
         let (x_mean, y_mean) = self.find_mean().unwrap();
         let mut numerator = 0.0;
         let mut denominator = 0.0;
 
         for i in 0..value_count {
-            numerator += (self.x_values[i].clone().into() - x_mean)
-                * (self.y_values[i].clone().into() - y_mean);
-            denominator += (self.x_values[i].clone().into() - x_mean).powf(2.0);
+            numerator += (self.x_values[i].into() - x_mean) * (self.y_values[i].into() - y_mean);
+            denominator += (self.x_values[i].into() - x_mean).powf(2.0);
         }
 
         let gradient = numerator / denominator;
@@ -64,9 +64,9 @@ where
         let (_, y_mean) = self.find_mean().unwrap();
         let (intercept, gradient) = self.find_intercept_and_slope().unwrap();
         for i in 0..self.x_values.len() {
-            let y_pred = intercept + (gradient * self.x_values[i].clone().into());
-            ssr_t += (self.y_values[i].clone().into() - y_mean).powf(2.0);
-            ssr_r += (self.y_values[i].clone().into() - y_pred).powf(2.0);
+            let y_pred = intercept + (gradient * self.x_values[i].into());
+            ssr_t += (self.y_values[i].into() - y_mean).powf(2.0);
+            ssr_r += (self.y_values[i].into() - y_pred).powf(2.0);
         }
 
         let r2 = 1.0 - (ssr_r / ssr_t);
@@ -76,29 +76,28 @@ where
     fn test_model(&self, intercept: f64, gradient: f64) -> Option<Vec<f64>> {
         let mut y_pred: Vec<f64> = Vec::new();
         for i in 0..self.x_values.len() {
-            let predicted_val = intercept + (gradient * self.x_values[i].clone().into());
+            let predicted_val = intercept + (gradient * self.x_values[i].into());
             y_pred.push(predicted_val);
         }
-        println!("{:?}", y_pred);
         Some(y_pred)
     }
 
     fn rmse(&self, pred_values: Vec<f64>) -> Option<f64> {
         let mut total = 0.0;
         for i in 0..self.x_values.len() {
-            total += (pred_values[i] - self.y_values[i].clone().into()).powf(2.0);
+            total += (pred_values[i] - self.y_values[i].into()).powf(2.0);
         }
 
         return Some((total / self.x_values.len() as f64).sqrt());
     }
 }
 
-pub fn print_hello() {
-    let ind_values = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
-    let dep_values = vec![1.0, 4.0, 9.0, 16.0, 25.0, 36.0, 49.0, 64.0];
+pub fn test() {
+    let ind_values = vec![1, 2, 3, 4, 5, 6, 7, 8];
+    let dep_values = vec![1, 4, 9, 16, 25, 36, 49, 64];
 
-    let test_ind = vec![9.0, 10.0];
-    let test_dep = vec![81.0, 100.0];
+    let test_ind = vec![10];
+    let test_dep = vec![100];
 
     let calc = InputNumbers::new(ind_values, dep_values);
     let test = InputNumbers::new(test_ind, test_dep);
