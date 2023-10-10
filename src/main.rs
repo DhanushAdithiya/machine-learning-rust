@@ -1,5 +1,5 @@
-use machine_learning_rust::algorithms::linear_regression;
+use machine_learning_rust::algorithms::simple_linear_regression;
 
 fn main() {
-    linear_regression::test()
+    simple_linear_regression::test()
 }

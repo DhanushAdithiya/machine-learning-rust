@@ -105,6 +105,7 @@ pub fn test() {
     let (intercept, gradient) = calc.find_intercept_and_slope().unwrap();
     println!("{},{}", intercept, gradient);
     let preditions = test.test_model(intercept, gradient).unwrap();
+    println!("{:?}", preditions);
     println!("ACCURACY: {}", test.rmse(preditions).unwrap());
 
     println!("{:?}", calc.calculate_score().unwrap() * 100.0);
